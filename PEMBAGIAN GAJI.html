@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Gaji Bulanan dengan Tabungan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper .prefix {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-weight: 600;
+            pointer-events: none;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 12px 12px 35px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-calculate {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-calculate:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-save {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background-color: #229954;
+        }
+        
+        .btn-clear {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background-color: #c0392b;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .result h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+            color: #27ae60;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #ddd;
+        }
+        
+        .info-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .month-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .month-btn {
+            flex: 1;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .month-btn:hover {
+            background-color: #d5dbdd;
+        }
+        
+        .month-btn.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .savings-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e8f8f5;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .savings-container h2 {
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+        
+        .savings-total {
+            font-size: 24px;
+            font-weight: bold;
+            color: #27ae60;
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+        }
+        
+        .monthly-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .monthly-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .monthly-item:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateX(120%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .month-selector {
+                flex-wrap: wrap;
+            }
+            
+            .month-btn {
+                flex: 1 0 30%;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Gaji Bulanan dengan Tabungan</h1>
+        
+        <div class="info-box">
+            <p>Isi form di bawah untuk menghitung gaji bersih Anda setelah potongan dan pengeluaran mingguan. Simpan hasil perhitungan untuk melacak tabungan Anda.</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="gajiPokok">Gaji Pokok:</label>
+            <div class="input-wrapper">
+                <span class="prefix">Rp</span>
+                <input type="text" id="gajiPokok" value="2.000.000" class="currency-input">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="pembayaranWajib">Pembayaran Wajib:</label>
+            <div class="input-wrapper">
+                <span class="prefix">Rp</span>
+                <input type="text" id="pembayaranWajib" value="350.000" class="currency-input">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="pemberianWajib">Pemberian Wajib:</label>
+            <div class="input-wrapper">
+                <span class="prefix">Rp</span>
+                <input type="text" id="pemberianWajib" value="300.000" class="currency-input">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="pengeluaranMingguan">Pengeluaran per Minggu:</label>
+            <div class="input-wrapper">
+                <span class="prefix">Rp</span>
+                <input type="text" id="pengeluaranMingguan" value="150.000" class="currency-input">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Jumlah Minggu dalam Bulan:</label>
+            <div class="month-selector">
+                <button class="month-btn" data-weeks="3">3 Minggu</button>
+                <button class="month-btn active" data-weeks="4">4 Minggu</button>
+                <button class="month-btn" data-weeks="5">5 Minggu</button>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn btn-calculate" onclick="hitungGaji()">Hitung Gaji</button>
+            <button class="btn btn-save" onclick="simpanData()">Simpan Data</button>
+            <button class="btn btn-clear" onclick="hapusSemuaData()">Hapus Semua</button>
+        </div>
+        
+        <div class="result" id="hasil" style="display: none;">
+            <h2>Hasil Perhitungan</h2>
+            <div class="result-item">
+                <span>Gaji Pokok:</span>
+                <span id="hasilGajiPokok">Rp 0</span>
+            </div>
+            <div class="result-item">
+                <span>Total Potongan:</span>
+                <span id="hasilPotongan">Rp 0</span>
+            </div>
+            <div class="result-item">
+                <span>Gaji Setelah Potongan:</span>
+                <span id="hasilSetelahPotongan">Rp 0</span>
+            </div>
+            <div class="result-item">
+                <span>Pengeluaran Bulanan:</span>
+                <span id="hasilPengeluaran">Rp 0</span>
+            </div>
+            <div class="result-item">
+                <span>Total Gaji Akhir:</span>
+                <span id="hasilGajiAkhir">Rp 0</span>
+            </div>
+        </div>
+        
+        <div class="savings-container">
+            <h2>Tabungan Bulanan</h2>
+            <div class="savings-total" id="totalTabungan">Total Tabungan: Rp 0</div>
+            <div class="monthly-list" id="monthlyList">
+                <div class="empty-state">Belum ada data tabungan. Hitung dan simpan gaji bulanan Anda untuk melihat tabungan.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        Data berhasil disimpan!
+    </div>
+
+    <script>
+        // Set active month button
+        document.querySelectorAll('.month-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Hitung ulang saat tombol minggu diklik
+                if (document.getElementById('hasil').style.display === 'block') {
+                    hitungGaji();
+                }
+            });
+        });
+
+        function formatRupiah(angka) {
+            // Fungsi untuk menampilkan hasil akhir dengan format Rupiah
+            return 'Rp ' + parseInt(angka).toLocaleString('id-ID');
+        }
+
+        function formatInputRupiah(value) {
+            // Fungsi untuk memformat nilai di input field (tanpa 'Rp')
+            // Menghapus semua karakter selain digit
+            let number_string = value.replace(/[^,\d]/g, '').toString(),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            // Tambahkan titik jika ada ribuan
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            // Hapus bagian desimal jika ada (karena gaji biasanya bulat)
+            rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+            return rupiah;
+        }
+        
+        // Event listener untuk semua input dengan class 'currency-input'
+        document.querySelectorAll('.currency-input').forEach(input => {
+            input.addEventListener('keyup', function(e) {
+                // Format ulang nilai saat mengetik
+                let value = formatInputRupiah(e.target.value);
+                e.target.value = value;
+            });
+
+            // Pastikan nilai diformat saat input di-klik (jika ada nilai default)
+            input.addEventListener('focus', function(e) {
+                e.target.select();
+            });
+        });
+
+        function hitungGaji() {
+            // Ambil nilai dari input, hapus format (titik) untuk dihitung
+            const gajiPokok = parseInt((document.getElementById('gajiPokok').value || '0').replace(/\./g, '')) || 0;
+            const pembayaranWajib = parseInt((document.getElementById('pembayaranWajib').value || '0').replace(/\./g, '')) || 0;
+            const pemberianWajib = parseInt((document.getElementById('pemberianWajib').value || '0').replace(/\./g, '')) || 0;
+            const pengeluaranMingguan = parseInt((document.getElementById('pengeluaranMingguan').value || '0').replace(/\./g, '')) || 0;
+            
+            // Get active weeks
+            const activeWeekBtn = document.querySelector('.month-btn.active');
+            const jumlahMinggu = parseInt(activeWeekBtn.getAttribute('data-weeks'));
+            
+            // Calculate
+            const totalPotongan = pembayaranWajib + pemberianWajib;
+            const gajiSetelahPotongan = gajiPokok - totalPotongan;
+            const totalPengeluaran = pengeluaranMingguan * jumlahMinggu;
+            const gajiAkhir = gajiSetelahPotongan - totalPengeluaran;
+            
+            // Display results dengan format Rupiah
+            document.getElementById('hasilGajiPokok').textContent = formatRupiah(gajiPokok);
+            document.getElementById('hasilPotongan').textContent = formatRupiah(totalPotongan);
+            document.getElementById('hasilSetelahPotongan').textContent = formatRupiah(gajiSetelahPotongan);
+            document.getElementById('hasilPengeluaran').textContent = formatRupiah(totalPengeluaran);
+            document.getElementById('hasilGajiAkhir').textContent = formatRupiah(gajiAkhir);
+            
+            // Show result section
+            document.getElementById('hasil').style.display = 'block';
+            
+            // Store current calculation for potential saving
+            window.currentCalculation = {
+                gajiAkhir: gajiAkhir,
+                gajiPokok: gajiPokok,
+                totalPotongan: totalPotongan,
+                gajiSetelahPotongan: gajiSetelahPotongan,
+                totalPengeluaran: totalPengeluaran,
+                jumlahMinggu: jumlahMinggu
+            };
+        }
+
+        function simpanData() {
+            // Check if calculation has been performed
+            if (!window.currentCalculation) {
+                tampilkanNotifikasi('Silakan hitung gaji terlebih dahulu!', 'warning');
+                return;
+            }
+            
+            // Get existing data from localStorage
+            let savedData = JSON.parse(localStorage.getItem('monthlySavings')) || [];
+            
+            // Add new month data
+            const monthNumber = savedData.length + 1;
+            const newMonthData = {
+                month: monthNumber,
+                ...window.currentCalculation,
+                date: new Date().toISOString()
+            };
+            
+            savedData.push(newMonthData);
+            
+            // Save to localStorage
+            localStorage.setItem('monthlySavings', JSON.stringify(savedData));
+            
+            // Update display
+            tampilkanDataTabungan();
+            
+            // Show notification
+            tampilkanNotifikasi(`Data Bulan ${monthNumber} berhasil disimpan!`, 'success');
+        }
+
+        function tampilkanDataTabungan() {
+            // Get saved data from localStorage
+            const savedData = JSON.parse(localStorage.getItem('monthlySavings')) || [];
+            
+            // Calculate total savings
+            let totalSavings = 0;
+            savedData.forEach(month => {
+                totalSavings += month.gajiAkhir;
+            });
+            
+            // Update total savings display
+            document.getElementById('totalTabungan').textContent = `Total Tabungan: ${formatRupiah(totalSavings)}`;
+            
+            // Update monthly list
+            const monthlyList = document.getElementById('monthlyList');
+            
+            if (savedData.length === 0) {
+                monthlyList.innerHTML = '<div class="empty-state">Belum ada data tabungan. Hitung dan simpan gaji bulanan Anda untuk melihat tabungan.</div>';
+                return;
+            }
+            
+            // Clear existing list
+            monthlyList.innerHTML = '';
+            
+            // Add each month to the list
+            savedData.forEach((month, index) => {
+                const monthItem = document.createElement('div');
+                monthItem.className = 'monthly-item';
+                
+                const monthDate = new Date(month.date);
+                const monthName = monthDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                
+                monthItem.innerHTML = `
+                    <span>Bulan ${index + 1} (${monthName})</span>
+                    <span>${formatRupiah(month.gajiAkhir)}</span>
+                `;
+                
+                monthlyList.appendChild(monthItem);
+            });
+        }
+
+        function hapusSemuaData() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua data tabungan?')) {
+                localStorage.removeItem('monthlySavings');
+                tampilkanDataTabungan();
+                tampilkanNotifikasi('Semua data tabungan telah dihapus!', 'info');
+            }
+        }
+
+        function tampilkanNotifikasi(pesan, tipe = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = pesan;
+            
+            // Set background color based on type
+            if (tipe === 'success') {
+                notification.style.backgroundColor = '#2ecc71';
+            } else if (tipe === 'warning') {
+                notification.style.backgroundColor = '#f39c12';
+            } else if (tipe === 'info') {
+                notification.style.backgroundColor = '#3498db';
+            }
+            
+            // Show notification
+            notification.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initial calculation with default values saat halaman dimuat
+        window.onload = function() {
+            // Format nilai default di input saat pertama kali load
+            document.querySelectorAll('.currency-input').forEach(input => {
+                input.value = formatInputRupiah(input.value);
+            });
+            
+            // Load and display saved data
+            tampilkanDataTabungan();
+            
+            // Calculate initial values
+            hitungGaji();
+        };
+    </script>
+</body>
+</html>
